@@ -10,14 +10,10 @@ public class AttackScript : MonoBehaviour
 
     [SerializeField, Tooltip("Set the attack button.")]
     private KeyCode blockButton = KeyCode.E;
-    [SerializeField, Tooltip("Set if the ai should be in control.")]
-    private bool ai = false;
+    [SerializeField, Tooltip("Set the scriptable object that this script should look at.")]
+    private PlayerObject playerObject;
     
     private Animator _animator;
-    private bool _stunned = false;
-    private bool _attacked = false;
-    AnimatorStateInfo _currentStateInfo;
-    private bool _blocking = false;
     private float _timer;
     private float _aiTimeLimit;
     private int _attacking;
@@ -26,51 +22,55 @@ public class AttackScript : MonoBehaviour
     private Coroutine _currentCoroutine;
     private bool _rightState = true;
     
+    private MovementControllerScript _movementScript;
+    
      private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _currentStateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+        _movementScript = GetComponent<MovementControllerScript>();
     }
 
     void Update()
     {
-        if (!_stunned && !ai) InputAttacks();
-        else if (!_stunned) AIControls();
+        if (playerObject != null)
+        {
+            if (playerObject.playerState != PlayerState.Stunned && !playerObject.ai) InputAttacks();
+            else if (playerObject.playerState != PlayerState.Stunned) AIControls();
+        }
     }
 
     private void InputAttacks()
     {
         // Ready's up next attack
-        if (_attacked && !_currentStateInfo.Equals(_animator.GetCurrentAnimatorStateInfo(0)))
+        if (playerObject.playerState == PlayerState.Attacked && _animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
         {
-            _attacked = false;
+            playerObject.playerState = PlayerState.Alive;
             GameManager.instance.InvokeOnNewAttackEvent();
-            _currentStateInfo = _animator.GetCurrentAnimatorStateInfo(0);
         }
         
         // Light attack
-        if (Input.GetKeyDown(attackButton))
+        if (Input.GetKeyDown(attackButton) && _movementScript.CheckGrounded())
         {
             _animator.SetTrigger("LightAttack");
-            _attacked = true;
+            playerObject.playerState = PlayerState.Attacked;
         }
 
         // Blocking
         _animator.SetBool("Blocking", Input.GetKey(blockButton));
-        if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Block")) _blocking = true;
-        else _blocking = false;
+        if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Block") && _movementScript.CheckGrounded()) playerObject.playerState = PlayerState.Blocking;
+        else if (playerObject.playerState == PlayerState.Blocking) playerObject.playerState = PlayerState.Alive;
     }
 
     private void AIControls()
     {
-        if (_attacked)
+        if (playerObject.playerState == PlayerState.Attacked)
         {
             if (_rightState)
                 AIAttacks();
             else if (_attacking == -1)
             {
                 _timer += Time.deltaTime;
-                if (_timer >= _aiTimeLimit) _attacked = false;
+                if (_timer >= _aiTimeLimit) playerObject.playerState = PlayerState.Alive;
             }
             else if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
                 _rightState = true;
@@ -81,14 +81,14 @@ public class AttackScript : MonoBehaviour
             if (_timer >= _aiTimeLimit)
                 _moving = false;
         }
-        else if (_blocking)
+        else if (playerObject.playerState == PlayerState.Blocking)
         {
             _timer += Time.deltaTime;
-            _animator.SetBool("Blocking", _blocking);
+            _animator.SetBool("Blocking", true);
             if (_timer >= _aiTimeLimit)
             {
-                _blocking = false;
-                _animator.SetBool("Blocking", _blocking);
+                playerObject.playerState = PlayerState.Alive;
+                _animator.SetBool("Blocking", false);
             }
         }
         else
@@ -102,14 +102,14 @@ public class AttackScript : MonoBehaviour
         // Chooses their next action
         int action = Random.Range(0, 100);
         
-        if (action < 33)
+        if (action < 50)
         {
             // The AI uses their attack
-            _attacked = true;
+            playerObject.playerState = PlayerState.Attacked;
             _attacking = Random.Range(0, 3);
             _aiTimeLimit = 1;
         }
-        else if (action < 66)
+        else if (action < 75)
         {
             // The AI moves
             _moving = true;
@@ -118,7 +118,7 @@ public class AttackScript : MonoBehaviour
         else
         {
             // The AI blocks
-            _blocking = true;
+            playerObject.playerState = PlayerState.Blocking;
             _aiTimeLimit = Random.Range(1, 3);
         }
         _timer = 0;
@@ -168,8 +168,6 @@ public class AttackScript : MonoBehaviour
     */
     IEnumerator StunCoroutine(int pFrames)
     {
-        _stunned = true;
-
         int i = 0;
         while (i < pFrames)
         {
@@ -177,27 +175,8 @@ public class AttackScript : MonoBehaviour
             i++;
         }
         Debug.Log("Stun stop");
-        _stunned = false;
+        
+        playerObject.playerState = PlayerState.Alive;
         _currentCoroutine = null;
-    }
-
-    public bool Stunned
-    {
-        get { return _stunned; }
-    }
-
-    public bool Blocking
-    {
-        get { return _blocking; }
-    }
-
-    public bool Moving
-    {
-        get { return _moving; }
-    }
-
-    public bool AI
-    {
-        get { return ai; }
     }
 }

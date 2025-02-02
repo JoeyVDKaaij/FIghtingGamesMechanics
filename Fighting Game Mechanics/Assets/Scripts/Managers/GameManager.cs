@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     
     [HideInInspector]
     public GameObject[] _players = new GameObject[2];
+    public PlayerObject[] _playerObjects = null;
     
     private void Awake()
     {
@@ -60,12 +61,20 @@ public class GameManager : MonoBehaviour
     }
 
     /* Get the other players game object. */
-    public GameObject GetOtherPlayerDetails(GameObject pPlayer)
+    public GameObject GetOtherPlayerGameObject(GameObject pPlayer)
     {
         if (_players[0] != pPlayer)
             return _players[0];
         
         return _players[1];
+    }
+    
+    public PlayerObject GetOtherPlayerDetails(GameObject pPlayer)
+    {
+        if (_players[0] != pPlayer)
+            return _playerObjects[0];
+        
+        return _playerObjects[1];
     }
     
     public void InvokeOnNewAttackEvent()

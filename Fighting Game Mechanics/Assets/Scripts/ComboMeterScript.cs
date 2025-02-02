@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -14,11 +15,12 @@ public class ComboMeterScript : MonoBehaviour
     private GameObject playersComboMeter = null;
     [SerializeField, Tooltip("Set the player who the combo meter will be based on.")]
     private CanvasGroup cg;
+    [SerializeField, Tooltip("Set the player who the combo meter will be based on.")]
+    private PlayerObject playerObject;
 
     private int _combo = 0;
     private int _damage = 0;
     private Coroutine _coroutineReference;
-    private bool _comboActive = false;
 
     private void Awake()
     {
@@ -35,12 +37,12 @@ public class ComboMeterScript : MonoBehaviour
     {
         if (playersComboMeter != null)
         {
-            _comboActive = true;
             if (_coroutineReference != null)
             {
                 StopCoroutine(_coroutineReference);
                 _coroutineReference = null;
             }
+            playerObject.comboActive = true;
             cg.alpha = 1;
             
             _combo++;
@@ -50,15 +52,20 @@ public class ComboMeterScript : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (!playerObject.comboActive && _combo > 0)
+        {
+            EndCombo();
+        }
+    }
+
     /* Ends the combo. Resets the values and turns on the coroutine that makes the combo meter invisible. */
     public void EndCombo()
     {
-        if (_comboActive)
-        {
-            _combo = 0;
-            _damage = 0;
-            _coroutineReference = StartCoroutine(ShowComboBeforeTransparency());
-        }
+        _combo = 0;
+        _damage = 0;
+        _coroutineReference = StartCoroutine(ShowComboBeforeTransparency());
     }
 
     /* Set the Combo and Damage text.
@@ -86,6 +93,5 @@ public class ComboMeterScript : MonoBehaviour
             }
         }
         _coroutineReference = null;
-        _comboActive = false;
     }
 }

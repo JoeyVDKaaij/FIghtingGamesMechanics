@@ -798,6 +798,7 @@ MonoBehaviour:
     m_Bits: 8
   jumpCooldown: 0.25
   airMultiplier: 0.4
+  playerObject: {fileID: 11400000, guid: 45dfd3a51cf8a5d449b3fe4f0eff6114, type: 2}
 --- !u!136 &260790637
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -902,6 +903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   healthBarScript: {fileID: 553077108}
+  playerObject: {fileID: 11400000, guid: 45dfd3a51cf8a5d449b3fe4f0eff6114, type: 2}
 --- !u!95 &260790642
 Animator:
   serializedVersion: 5
@@ -937,7 +939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackButton: 104
   blockButton: 101
-  ai: 0
+  playerObject: {fileID: 11400000, guid: 45dfd3a51cf8a5d449b3fe4f0eff6114, type: 2}
 --- !u!114 &260790644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -955,6 +957,7 @@ MonoBehaviour:
   timeUntilComboTransparent: 2
   playersComboMeter: {fileID: 260790634}
   cg: {fileID: 340121706}
+  playerObject: {fileID: 11400000, guid: 45dfd3a51cf8a5d449b3fe4f0eff6114, type: 2}
 --- !u!1 &261268623
 GameObject:
   m_ObjectHideFlags: 0
@@ -987,6 +990,9 @@ MonoBehaviour:
   _players:
   - {fileID: 0}
   - {fileID: 0}
+  _playerObjects:
+  - {fileID: 11400000, guid: 45dfd3a51cf8a5d449b3fe4f0eff6114, type: 2}
+  - {fileID: 11400000, guid: edfcc38a26f466d4e8ffc5aa1f89e40e, type: 2}
 --- !u!4 &261268625
 Transform:
   m_ObjectHideFlags: 0
@@ -1638,6 +1644,7 @@ MonoBehaviour:
   healthbarText: {fileID: 1337698910}
   healthType: 0
   timeUntilHealthRegerates: 1
+  playerObject: {fileID: 11400000, guid: 45dfd3a51cf8a5d449b3fe4f0eff6114, type: 2}
 --- !u!1 &613600316
 GameObject:
   m_ObjectHideFlags: 0
@@ -2251,6 +2258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   healthBarScript: {fileID: 1322607145}
+  playerObject: {fileID: 11400000, guid: edfcc38a26f466d4e8ffc5aa1f89e40e, type: 2}
 --- !u!54 &1187852160
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2303,6 +2311,7 @@ MonoBehaviour:
     m_Bits: 8
   jumpCooldown: 0.25
   airMultiplier: 0.4
+  playerObject: {fileID: 11400000, guid: edfcc38a26f466d4e8ffc5aa1f89e40e, type: 2}
 --- !u!136 &1187852162
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2427,8 +2436,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackButton: 108
-  blockButton: 101
-  ai: 0
+  blockButton: 114
+  playerObject: {fileID: 11400000, guid: edfcc38a26f466d4e8ffc5aa1f89e40e, type: 2}
 --- !u!114 &1187852168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2446,6 +2455,7 @@ MonoBehaviour:
   timeUntilComboTransparent: 2
   playersComboMeter: {fileID: 1187852158}
   cg: {fileID: 1821591119}
+  playerObject: {fileID: 11400000, guid: edfcc38a26f466d4e8ffc5aa1f89e40e, type: 2}
 --- !u!1 &1227606212
 GameObject:
   m_ObjectHideFlags: 0
@@ -2689,6 +2699,7 @@ MonoBehaviour:
   healthbarText: {fileID: 1975994242}
   healthType: 0
   timeUntilHealthRegerates: 0.27
+  playerObject: {fileID: 11400000, guid: edfcc38a26f466d4e8ffc5aa1f89e40e, type: 2}
 --- !u!1 &1337698908
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,8 +17,9 @@ public class HealthBarScript : MonoBehaviour
     private HealthType healthType = HealthType.Normal;
     [SerializeField, Tooltip("Set the health regeration speed."), Min(0.000001f)]
     private float timeUntilHealthRegerates = 1;
+    [SerializeField, Tooltip("Set player object.")]
+    private PlayerObject playerObject = null;
     
-    private int _currentHealth = 100;
     private float _sliderValue = 100;
     private int _healthDifference = 100;
     private float _timer = 0;
@@ -29,11 +30,11 @@ public class HealthBarScript : MonoBehaviour
     private void Awake()
     {
         _slider = GetComponent<Slider>();
-        _slider.maxValue = _currentHealth;
-        _slider.value = _currentHealth;
+        _slider.maxValue = playerObject.maxHealth;
+        _slider.value = playerObject.maxHealth;
 
         if (healthbarText != null)
-            healthbarText.SetText($"{(int)_slider.value} / {_slider.maxValue}");
+            healthbarText.SetText($"{(int)_slider.value} / {playerObject.maxHealth}");
 
         _comboMeterScript = GetComponent<ComboMeterScript>();
     }
@@ -42,7 +43,7 @@ public class HealthBarScript : MonoBehaviour
     {
         UpdateSlider();
 
-        if (setHealthDebug != _currentHealth)
+        if (setHealthDebug != playerObject.health)
         {
             UpdateHealth(setHealthDebug);
         }
@@ -52,9 +53,9 @@ public class HealthBarScript : MonoBehaviour
             _timer += Time.deltaTime;
             if (_timer >= timeUntilHealthRegerates)
             {
-                _currentHealth++;
-                _currentHealth = (int)Math.Clamp(_currentHealth, 0, _slider.maxValue);
-                setHealthDebug = _currentHealth;
+                playerObject.health++;
+                playerObject.health = (int)Math.Clamp(playerObject.health, 0, playerObject.maxHealth);
+                setHealthDebug = playerObject.health;
                 _timer = 0;
             }
         }
@@ -65,35 +66,35 @@ public class HealthBarScript : MonoBehaviour
     /* Updates the slider depending on the health that the player has. */
     private void UpdateSlider()
     {
-        if (_slider.value < _currentHealth)
+        if (_slider.value < playerObject.health)
         {
             _sliderValue += _healthDifference * healthbarSpeed;
 
-            _sliderValue = Mathf.Clamp(_sliderValue, _currentHealth - _healthDifference, _currentHealth);
+            _sliderValue = Mathf.Clamp(_sliderValue, playerObject.health - _healthDifference, playerObject.health);
             
             if (healthbarText != null)
-                healthbarText.SetText($"{(int)_sliderValue} / {_slider.maxValue}");
+                healthbarText.SetText($"{(int)_sliderValue} / {playerObject.maxHealth}");
         }
-        else if (_slider.value > _currentHealth)
+        else if (_slider.value > playerObject.health)
         {
             _sliderValue -= _healthDifference * healthbarSpeed;
 
-            if (_currentHealth <= 0)
+            if (playerObject.health <= 0)
             {
                 if (healthType == HealthType.Reset)
                 {
-                    _currentHealth = (int)_slider.maxValue;
-                    _slider.value = (int)_slider.maxValue;
+                    playerObject.health = (int)playerObject.maxHealth;
+                    _slider.value = (int)playerObject.maxHealth;
                 }
                 else
                 {
-                    _currentHealth = 0;
-                    _sliderValue = Mathf.Clamp(_sliderValue, _currentHealth, _currentHealth + _healthDifference);
+                    playerObject.health = 0;
+                    _sliderValue = Mathf.Clamp(_sliderValue, playerObject.health, playerObject.health + _healthDifference);
                 }
             }
             
             if (healthbarText != null)
-                healthbarText.SetText($"{(int)_sliderValue} / {_slider.maxValue}");
+                healthbarText.SetText($"{(int)_sliderValue} / {playerObject.maxHealth}");
         }
     }
 
@@ -102,10 +103,10 @@ public class HealthBarScript : MonoBehaviour
      */
     public void UpdateHealth(int pHealth)
     {
-        _healthDifference = (int)_slider.value - _currentHealth + (_currentHealth - pHealth);
+        _healthDifference = (int)_slider.value - playerObject.health + (playerObject.health - pHealth);
         if (_healthDifference < 0) _healthDifference = -_healthDifference;
-        _currentHealth = pHealth;
-        setHealthDebug = _currentHealth;
+        playerObject.health = pHealth;
+        setHealthDebug = playerObject.health;
     }
 
     /* Decrease the health by the damage taken.
@@ -113,10 +114,10 @@ public class HealthBarScript : MonoBehaviour
      */
     public void Damage(int pDamage)
     {
-        _healthDifference = (int)_slider.value - (_currentHealth - pDamage);
+        _healthDifference = (int)_slider.value - (playerObject.health - pDamage);
         if (_healthDifference < 0) _healthDifference = -_healthDifference;
-        _currentHealth -= pDamage;
-        setHealthDebug = _currentHealth;
+        playerObject.health -= pDamage;
+        setHealthDebug = playerObject.health;
         // if (_comboMeterScript)
             // _comboMeterScript.EndCombo();
     }
@@ -126,11 +127,11 @@ public class HealthBarScript : MonoBehaviour
      */
     public void SetMaxHealth(float pMaxHealth)
     {
-        _slider.maxValue = pMaxHealth;
-        if (_slider.value > _slider.maxValue)
+        playerObject.maxHealth = (int)pMaxHealth;
+        if (_slider.value > playerObject.maxHealth)
         {
-            _slider.value = _slider.maxValue;
-            _sliderValue = _slider.maxValue;
+            _slider.value = playerObject.maxHealth;
+            _sliderValue = playerObject.maxHealth;
         }
     }
 

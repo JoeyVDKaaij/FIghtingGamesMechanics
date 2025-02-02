@@ -13,3 +13,13 @@ public enum KnockbackDirection
     Left,
     Right
 }
+
+public enum PlayerState
+{
+    Alive,
+    Dead,
+    Stunned,
+    Blocking,
+    Attacked,
+    AIMoving
+}

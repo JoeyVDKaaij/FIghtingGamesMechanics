@@ -26,10 +26,12 @@ public class MovementControllerScript : MonoBehaviour
     [SerializeField, Tooltip("Set what the ground is.")]
     private LayerMask whatIsGround;
     
-    [SerializeField, Tooltip("Set what the ground is.")]
+    [SerializeField, Tooltip("Set the cooldown between 2 jumps.")]
     private float jumpCooldown;
-    [SerializeField, Tooltip("Set what the ground is.")]
+    [SerializeField, Tooltip("Set the speed when the player is in the air.")]
     private float airMultiplier;
+    [SerializeField, Tooltip("Set the player Scriptable Object to use.")]
+    private PlayerObject playerObject;
     
     private float _aiWalkTime;
     
@@ -41,7 +43,6 @@ public class MovementControllerScript : MonoBehaviour
 
     private bool _stunned;
     private ComboMeterScript _otherPlayerComboMeterScript;
-    private AttackScript _attackScript;
     private bool _aiAlreadyMoved = false;
     private float _timer;
 
@@ -49,14 +50,13 @@ public class MovementControllerScript : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody>();
         _rb.freezeRotation = true;
-        _attackScript = GetComponent<AttackScript>();
     }
 
     private void Update()
     {
-        if (!_attackScript.Stunned)
+        if (playerObject.playerState != PlayerState.Stunned)
         {
-            if (!_attackScript.AI)
+            if (!playerObject.ai)
                 _horizontalInput = 0;
 
             _timer += Time.deltaTime;
@@ -64,14 +64,8 @@ public class MovementControllerScript : MonoBehaviour
             // ground check
             if (CheckGrounded())
             {
-                if (_otherPlayerComboMeterScript != null)
-                    _otherPlayerComboMeterScript.EndCombo();
-                else
-                {
-                    _otherPlayerComboMeterScript = GameManager.instance.GetOtherPlayerDetails(gameObject).GetComponent<ComboMeterScript>();
-                    if (_otherPlayerComboMeterScript != null)
-                        _otherPlayerComboMeterScript.EndCombo();
-                }
+                if (playerObject != null && GameManager.instance.GetOtherPlayerDetails(gameObject).playerState != PlayerState.Stunned)
+                    playerObject.comboActive = false;
             }
             
             if (Physics.Raycast(transform.position, Vector3.down, PlayerHeight * transform.lossyScale.y / 2 + 0.2f,
@@ -80,11 +74,11 @@ public class MovementControllerScript : MonoBehaviour
                 transform.position += Vector3.left;
             }
 
-            if (!_attackScript.AI)
+            if (!playerObject.ai)
                 PlayerInput();
             else
             {
-                if (!_aiAlreadyMoved && _attackScript.Moving)
+                if (!_aiAlreadyMoved && playerObject.playerState == PlayerState.AIMoving || playerObject.playerState == PlayerState.Alive)
                 {
                     _aiAlreadyMoved = true;
                     _horizontalInput = Random.Range(-1, 2);
@@ -92,7 +86,7 @@ public class MovementControllerScript : MonoBehaviour
                     _aiWalkTime = Random.Range(0, 2);
                     _timer = 0;
                 }
-                else if (!_attackScript.Moving)
+                else if (playerObject.playerState != PlayerState.AIMoving)
                 {
                     _aiAlreadyMoved = false;
                 }
@@ -110,7 +104,8 @@ public class MovementControllerScript : MonoBehaviour
 
     private void FixedUpdate()
     {
-        MovePlayer();
+        if (playerObject.playerState == PlayerState.Alive || playerObject.ai && playerObject.playerState == PlayerState.AIMoving)
+            MovePlayer();
     }
     
     /* Players input. Change the actual input in the inspector. */
@@ -124,7 +119,7 @@ public class MovementControllerScript : MonoBehaviour
                 _horizontalInput = Input.GetKey(moveLeft)?-1:1;
         }
         
-        if (Input.GetKey(jumpKey) && CheckGrounded() && readyToJump)
+        if (Input.GetKey(jumpKey) && CheckGrounded() && readyToJump && playerObject.playerState == PlayerState.Alive)
         {
             readyToJump = false;
 
@@ -145,7 +140,7 @@ public class MovementControllerScript : MonoBehaviour
         else 
             _rb.AddForce(moveDirection * 10 * speed * airMultiplier, ForceMode.Force);
 
-        if (_attackScript.AI)
+        if (playerObject.ai)
         {
             if (_timer >= _aiWalkTime)
                 _horizontalInput = 0;
